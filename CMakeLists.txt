@@ -25,6 +25,9 @@ endif ()
 # ====================================================================================
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
+#set(PICO_CYW43_SUPPORTED 1)
+#set(PICO_CYW43_ARCH_THREADSAFE_BACKGROUND 1)
+
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -38,9 +41,9 @@ pico_sdk_init()
 add_executable(ds5-bridge
         src/usb_descriptors.c
         src/main.cpp
-        src/bt.cpp
         src/usb.cpp
         src/audio.cpp
+        src/bt.cpp
 )
 
 add_library(wdl_resampler STATIC
@@ -53,13 +56,14 @@ target_include_directories(wdl_resampler PUBLIC
 
 target_compile_options(wdl_resampler PRIVATE -fsigned-char)
 target_compile_options(ds5-bridge PRIVATE -fsigned-char)
+target_compile_definitions(ds5-bridge PRIVATE CYW43_LWIP=0)
 
 pico_set_program_name(ds5-bridge "ds5-bridge")
 pico_set_program_version(ds5-bridge "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(ds5-bridge 0)
-pico_enable_stdio_usb(ds5-bridge 1)
+pico_enable_stdio_uart(ds5-bridge 1)
+pico_enable_stdio_usb(ds5-bridge 0)
 
 # Add the standard library to the build
 target_link_libraries(ds5-bridge
@@ -81,7 +85,7 @@ target_link_libraries(ds5-bridge
         hardware_interp
         hardware_timer
         pico_btstack_classic
-        pico_cyw43_arch_none
+        pico_cyw43_arch_threadsafe_background
         pico_btstack_cyw43
         tinyusb_device
         tinyusb_board

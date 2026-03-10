@@ -5,6 +5,7 @@
 #ifndef DS5_BRIDGE_AUDIO_H
 #define DS5_BRIDGE_AUDIO_H
 
-void core1_entry();
+void audio_init();
+void audio_loop();
 
 #endif //DS5_BRIDGE_AUDIO_H

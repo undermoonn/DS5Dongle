@@ -118,15 +118,25 @@
 
 // UAC1 Full-Speed endpoint size
 #define CFG_TUD_AUDIO_FUNC_1_SAMPLE_RATE            48000
-#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX          392
+#define CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_OUT     TUD_AUDIO_EP_SIZE(false, CFG_TUD_AUDIO_FUNC_1_SAMPLE_RATE, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX)
+#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX          CFG_TUD_AUDIO_FUNC_1_FORMAT_1_EP_SZ_OUT
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX           196
 
-#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ       2048
+#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ       (6 * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX)
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ        (4 * CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX)
 
 // Enable OUT EP (speaker) and IN EP (mic)
 #define CFG_TUD_AUDIO_ENABLE_EP_OUT                 1
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                  1
+
+// CDC FIFO size of TX and RX
+#define CFG_TUD_CDC_RX_BUFSIZE   64
+#define CFG_TUD_CDC_TX_BUFSIZE   64
+
+// CDC Endpoint transfer buffer size, more is faster
+// Leave it as default size (512 for HS, 64 for FS) unless your host application
+// is able to send ZLP (Zero Length Packet) to terminate transfer !
+#define CFG_TUD_CDC_EP_BUFSIZE   64
 
 #ifdef __cplusplus
 }

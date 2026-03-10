@@ -13,20 +13,32 @@
 
 int reportSeqCounter = 0;
 uint8_t packetCounter = 0;
+uint32_t lastTime = 0;
 
-uint8_t interrupt_in_data[63];
+uint8_t interrupt_in_data[63] = {
+    0x7f, 0x7d, 0x7f, 0x7e, 0x00, 0x00, 0xa7,
+    0x08, 0x00, 0x00, 0x00, 0x52, 0x43, 0x30, 0x41,
+    0x01, 0x00, 0x0e, 0x00, 0xef, 0xff, 0x03, 0x03,
+    0x7b, 0x1b, 0x18, 0xf0, 0xcc, 0x9c, 0x60, 0x00,
+    0xfc, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x00, 0x09, 0x09, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0xa7, 0xad, 0x60, 0x00, 0x29, 0x18, 0x00,
+    0x53, 0x9f, 0x28, 0x35, 0xa5, 0xa8, 0x0c, 0x8b
+};
 
-bool interrupt_in_cb(repeating_timer* rt) {
-    if (tud_ready()) {
-        tud_hid_report(0x01,interrupt_in_data,63);
+void interrupt_loop() {
+    if (board_millis() - lastTime < 4) return;
+    lastTime = board_millis();
+    if (!tud_hid_ready()) return;
+    if (!tud_hid_report(0x01, interrupt_in_data, 63)) {
+        printf("[USBHID] tud_hid_report error\n");
     }
-    return true;
 }
 
 void on_bt_data(CHANNEL_TYPE channel, uint8_t *data, uint16_t len) {
-    printf("[Main] BT data callback: channel=%u len=%u\n", channel, len);
+    // printf("[Main] BT data callback: channel=%u len=%u\n", channel, len);
     if (channel == INTERRUPT && data[1] == 0x31) {
-        memcpy(interrupt_in_data,data + 3,63);
+        memcpy(interrupt_in_data, data + 3, 63);
     }
 }
 
@@ -53,7 +65,6 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer,
                            uint16_t bufsize) {
-    // This example doesn't use multiple report and report ID
     (void) itf;
     (void) report_id;
     (void) report_type;
@@ -69,8 +80,8 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
                 reportSeqCounter = 0;
             }
             outputData[2] = 0x10;
-            memcpy(outputData + 3,buffer + 1,bufsize - 1);
-            bt_write(outputData,sizeof(outputData));
+            memcpy(outputData + 3, buffer + 1, bufsize - 1);
+            bt_write(outputData, sizeof(outputData));
             break;
         }
     }
@@ -90,11 +101,11 @@ int main() {
     bt_init();
     bt_register_data_callback(on_bt_data);
 
-    multicore_launch_core1(core1_entry);
-    repeating_timer rt{};
-    add_repeating_timer_ms(4,interrupt_in_cb,nullptr,&rt);
+    audio_init();
 
     while (1) {
         tud_task();
+        audio_loop();
+        interrupt_loop();
     }
 }

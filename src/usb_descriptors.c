@@ -215,7 +215,8 @@ uint8_t const descriptor_configuration[] = {
     0x01, // bEndpointAddress: OUT EP1
     0x09, // bmAttributes: Isochronous, Adaptive
     0x88, 0x01, // wMaxPacketSize: 392 bytes
-    0x04, // bInterval: 4 (1/(2^(4-1)) ms ≈ 125 µs/frame)
+    // 0x04, // bInterval: 4 (1/(2^(4-1)) ms ≈ 125 µs/frame)
+    0x01, // bInterval
     0x00, // bRefresh
     0x00, // bSynchAddress
 

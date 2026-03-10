@@ -6,7 +6,6 @@
 #include "bt.h"
 #include "resample.h"
 #include "tusb.h"
-#include "pico/time.h"
 #include <algorithm>
 
 #define INPUT_CHANNELS    4
@@ -19,11 +18,9 @@ static WDL_Resampler resampler;
 static uint8_t reportSeqCounter = 0;
 static uint8_t packetCounter = 0;
 
-void process_audio() {
+void audio_loop() {
     // 1. 读取 USB 音频数据
-    if (!tud_audio_available()){
-        return;
-    }
+    if (!tud_audio_available()) return;
 
     int16_t raw[1024];
     uint32_t bytes_read = tud_audio_read(raw, sizeof(raw));
@@ -80,17 +77,9 @@ void process_audio() {
     }
 }
 
-void core1_entry() {
+void audio_init() {
     resampler.SetMode(true, 0, false);
     resampler.SetRates(48000, 3000);
     resampler.SetFeedMode(true);
     resampler.Prealloc(2, 480, 32);
-
-    while (1) {
-        if (!tud_ready()) {
-            sleep_ms(10);
-            continue;
-        }
-        process_audio();
-    }
 }
