@@ -313,7 +313,7 @@ uint8_t const descriptor_configuration[] = {
     0x84, // bEndpointAddress: IN EP4
     0x03, // bmAttributes: Interrupt
     0x40, 0x00, // wMaxPacketSize: 64
-    0x06, // bInterval: 6 (polling every 4ms)
+    0x01, // bInterval: 1 (polling every 1ms, 1000Hz)
 
     // Endpoint Descriptor (HID OUT: EP3)
     0x07, // bLength
@@ -321,7 +321,7 @@ uint8_t const descriptor_configuration[] = {
     0x03, // bEndpointAddress: OUT EP3
     0x03, // bmAttributes: Interrupt
     0x40, 0x00, // wMaxPacketSize: 64
-    0x06, // bInterval: 6
+    0x01, // bInterval: 1 (1000Hz)
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
